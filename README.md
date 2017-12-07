@@ -2,7 +2,8 @@
 C++17 header only library that serialize/deserialze a type T that must be constexpr aggregate initializable to AMQP  
 
 Dependency : The library is using the excelent library magic_get from Antony Polukhin
-https://github.com/apolukhin/magic_get and the Proton and Qpid libraries from Apache
+https://github.com/apolukhin/magic_get and the Qpid Proton and Qpid Messaging libraries from Apache
+https://qpid.apache.org/proton/
 
 The compiler that I used is gcc version 7.2 with the flag -fconcepts
 
