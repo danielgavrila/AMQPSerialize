@@ -17,31 +17,31 @@ cmake .. -DProton_DIR=/your-path-to-Proton/lib64/cmake/Proton
 Usage:You define under the same namespace all the POD structures that you want to serialize/deserialize.
 Let say that for the queue Queue1 you will want send/receive the structure Point
 
-namespace Queue1
-{
-struct Point{
-    double x,y,z;
-};
-//associate to the struct one identifier  from the enum TypesAMQP
-using AMQPPoint=AMQPStructs<Point,TypesAMQP::One>;
+	namespace Queue1
+	{
+	struct Point{
+	    double x,y,z;
+	};
+	//associate to the struct one identifier  from the enum TypesAMQP
+	using AMQPPoint=AMQPStructs<Point,TypesAMQP::One>;
 
-//the first is std::monostate ,to keep the same values as in enum TypesAMQP
-using VariantStruct=std::variant<std::monostate,Point>;
+	//the first is std::monostate ,to keep the same values as in enum TypesAMQP
+	using VariantStruct=std::variant<std::monostate,Point>;
 
-//define the wrapers 
-template <typename TVctAMQP>
-VariantStruct fromAMQP(const TVctAMQP &valVect )
-{
-    return  serializeAMQP::fromAMQPImpl<VariantStruct,TVctAMQP>(valVect );
-}
+	//define the wrapers 
+	template <typename TVctAMQP>
+	VariantStruct fromAMQP(const TVctAMQP &valVect )
+	{
+	    return  serializeAMQP::fromAMQPImpl<VariantStruct,TVctAMQP>(valVect );
+	}
 
-VariantStruct  fromAMQP(const proton::message &m )
-{
-    return  serializeAMQP::fromAMQPImpl<VariantStruct>(m );
-}
+	VariantStruct  fromAMQP(const proton::message &m )
+	{
+	    return  serializeAMQP::fromAMQPImpl<VariantStruct>(m );
+	}
 
 
-}
+	}
 
 
 To test the new structure
