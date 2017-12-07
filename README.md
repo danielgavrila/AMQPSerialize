@@ -32,7 +32,7 @@ Let says that for the queue Queue1 you will want to send/receive the structure P
 	//associate to the struct one identifier  from the enum TypesAMQP
 	using AMQPPoint=AMQPStructs<Point,TypesAMQP::One>;
 
-	//the first is std::monostate ,to keep the same values as in enum TypesAMQP
+	//the first type in variant is std::monostate ,to keep the same values as in enum TypesAMQP
 	using VariantStruct=std::variant<std::monostate,Point>;
 
 	//define the wrapers 

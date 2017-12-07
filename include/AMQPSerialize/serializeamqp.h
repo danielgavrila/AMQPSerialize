@@ -119,7 +119,7 @@ template<typename>
 struct is_variant : std::false_type {};
 
 template<typename ... T>
-struct is_variant<std::variant<T...> > : std::true_type {};
+struct is_variant<std::variant<std::monostate,T...> > : std::true_type {};
 
 template<typename ... T>
 concept bool is_variant_v=is_variant<T...>::value;

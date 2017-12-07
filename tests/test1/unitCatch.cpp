@@ -13,7 +13,7 @@ static_assert(!serializeAMQP::detail::isAMQPStruct<int>);
 static_assert(serializeAMQP::detail::isAMQPStruct<AMQPTestStruct>);
 
 static_assert(serializeAMQP::detail::is_variant_v<VariantStruct>);
-
+static_assert(serializeAMQP::detail::is_variant_v<std::variant<std::monostate,int,char>>);
 
 namespace{
 
