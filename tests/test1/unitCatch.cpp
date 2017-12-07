@@ -8,6 +8,13 @@
 using namespace Queue1;
 
 
+
+static_assert(!serializeAMQP::detail::isAMQPStruct<int>);
+static_assert(serializeAMQP::detail::isAMQPStruct<AMQPTestStruct>);
+
+static_assert(serializeAMQP::detail::is_variant_v<VariantStruct>);
+
+
 namespace{
 
 struct TestVct{
@@ -83,14 +90,19 @@ TEST_CASE( "AMQPSerialize ", "[AMQPSerialize]" )
     SECTION("PointTest")
     {
     auto p1 =Point {1.1,2.1,3.1};
-
-
-
+    auto listVariants1=serializeAMQP::toProton(AMQPPoint{p1});
     auto listVariants2=serializeAMQP::toQpid(AMQPPoint{p1});
+    auto var1= Queue1::fromAMQP(listVariants1);
+    REQUIRE(static_cast<size_t>(TypesAMQP::Three)==var1.index());
     auto var2= Queue1::fromAMQP(listVariants2);
+
     REQUIRE(static_cast<size_t>(TypesAMQP::Three)==var2.index());
-    auto p2=std::get<Queue1::Point>(var2);
+
+    auto p2=std::get<Queue1::Point>(var1);
     REQUIRE(p1==p2);
+
+    auto p3=std::get<Queue1::Point>(var2);
+    REQUIRE(p1==p3);
     }
 
     SECTION("ProfileTest")
@@ -130,38 +142,7 @@ TEST_CASE( "AMQPSerialize ", "[AMQPSerialize]" )
 
 
 
-    SECTION("VctTest")
-    {
 
-    TestVct testVct1={2,1.2,{4.5,6.7,8.9},99};
-    auto listVariants5=serializeAMQP::toProton(testVct1);
-
-    auto var5= serializeAMQP::detail::fromPODAMQPImpl
-            <TestVct,serializeAMQP::TVctProtonScalar>(listVariants5);
-
-    REQUIRE(testVct1==var5);
-
-    }
-
-    SECTION("Unit1_Misc")
-    {
-    using namespace boost::pfr::ops;
-    using TTuple=std::tuple <std::vector<int>,double,char>;
-
-
-    ABC abc {45, 46,{87,88,89},"dan"};
-    using TypeField =  boost::pfr::tuple_element_t<0, ABC>;
-    //std::cout << "TypeField: " << typeid(TypeField).name() << '\n';
-    static_assert(std::is_same_v<TypeField,uint32_t>,"the same");
-    REQUIRE(serializeAMQP::detail::isAMQPType<uint32_t>::value==1);
-    auto serABC=serializeAMQP::toProton(abc);
-
-
-
-    auto abc2=serializeAMQP::detail::fromPODAMQPImpl<ABC,serializeAMQP::TVctProtonScalar>(serABC);
-    REQUIRE(abc==abc2);
-
-    }
     SECTION("TestStruct")
     {
 

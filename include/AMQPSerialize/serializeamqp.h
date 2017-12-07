@@ -63,10 +63,7 @@ struct isQpidVct<TListQpidVariant>
         : public std::true_type { };
 
 template <typename T>
-inline constexpr bool  isQpidVct_v=isQpidVct<T>::value;
-
-template <typename T>
-concept bool QpidVector=isQpidVct_v<T>;
+concept bool QpidVector=isQpidVct<T>::value;
 
 
 
@@ -105,7 +102,7 @@ template<> struct isAMQPType<std::string> : public std::true_type {};
 //template<> struct isAMQPType<decimal128> : public std::true_type<DECIMAL128, decimal128> {};
 //template<> struct isAMQPType<uuid> : public std::true_type<UUID, uuid> {};
 template<typename T>
-constexpr bool isAMQPType_v=isAMQPType<T>::value;
+concept bool isAMQPType_v=isAMQPType<T>::value;
 
 template<typename>
 struct is_std_vector : std::false_type {};
@@ -114,17 +111,38 @@ template<typename T, typename A>
 struct is_std_vector<std::vector<T,A>> : std::true_type {};
 
 template<typename T>
-  constexpr bool is_std_vector_v=is_std_vector<T>::value;
+concept bool is_std_vector_v=is_std_vector<T>::value;
 
-template<class T>
+
+
+template<typename>
+struct is_variant : std::false_type {};
+
+template<typename ... T>
+struct is_variant<std::variant<T...> > : std::true_type {};
+
+template<typename ... T>
+concept bool is_variant_v=is_variant<T...>::value;
+
+
+template<typename T>
 using hasListType =typename T::List;
 
 static_assert(std::experimental::is_detected_v<hasListType, qpid::types::Variant>,
               "hasListType");
 
+
 template <typename T> requires QpidVector<T>
-inline constexpr bool isQpidImplementation=
+concept bool isQpidImplementation=
         std::experimental::is_detected_v<hasListType, typename T::value_type>;//detect if is qpid::types::Variant
+
+template<typename T>
+using hasMember_tAMQP =decltype(std::declval<T>().tAMQP);
+
+template <typename T>
+concept bool isAMQPStruct=
+        std::experimental::is_detected_v<hasMember_tAMQP, T>;//detect if is derived  from AMQPStructs
+
 
 
 template <typename T>void getVariantImpl(const qpid::types::Variant &,T &)
@@ -279,7 +297,7 @@ void toAMQPImplRec(const T &val,TVctAMQP &res)
 
 //T is aggregate initialisable structure
 //TVctAMQP requires to be a vector of proton::scalar,qpid::types::Variant
-template <typename T,typename TVctAMQP > requires QpidVector<TVctAMQP>
+template <typename T,typename TVctAMQP > requires QpidVector<TVctAMQP> && isAMQPStruct<T>
 constexpr TVctAMQP toAMQPImpl(const T &val)
 {
     auto v=TVctAMQP();
@@ -472,8 +490,8 @@ struct initFunctionsTuple
 //T is a tuple of  POD
 template<typename T,typename TVctAMQP> requires QpidVector<TVctAMQP>
 using init_FN_tuple = decltype(
-                      moveParamPacks<TVctAMQP,initFunctionsTuple,std::tuple>
-                     (std::declval<T>()));
+            moveParamPacks<TVctAMQP,initFunctionsTuple,std::tuple>
+            (std::declval<T>()));
 
 
 
@@ -481,13 +499,15 @@ using init_FN_tuple = decltype(
 
 
 
-template <typename T > TVctProtonScalar toProton(const T &val)
+template <typename T >  requires detail::isAMQPStruct<T>
+TVctProtonScalar toProton(const T &val)
 {
     return detail::toAMQPImpl<T,TVctProtonScalar>(val);
 }
 
 
-template <typename T > TListQpidVariant toQpid(const T &val)
+template <typename T > requires detail::isAMQPStruct<T>
+TListQpidVariant toQpid(const T &val)
 {
     return detail::toAMQPImpl<T,TListQpidVariant>(val);
 }
@@ -495,7 +515,8 @@ template <typename T > TListQpidVariant toQpid(const T &val)
 
 
 //TVctAMQP requires to be a vector of proton::scalar,qpid::types::Variant
-template <typename Result,typename TVctAMQP> requires QpidVector<TVctAMQP>
+template <typename Result,typename TVctAMQP>
+        requires QpidVector<TVctAMQP>  && detail::is_variant_v<Result>
 Result fromAMQPImpl(const TVctAMQP &valVect )
 {
     auto res=Result();
@@ -533,6 +554,7 @@ Result fromAMQPImpl(const TVctAMQP &valVect )
 }
 
 template <typename Result>
+        requires  detail::is_variant_v<Result>
 Result fromAMQPImpl(const proton::message &m )
 {
 

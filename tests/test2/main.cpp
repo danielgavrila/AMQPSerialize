@@ -70,18 +70,6 @@ TEST_CASE( "AMQPSerialize ", "[AMQPSerialize]" )
 
 
 
-    SECTION("VctTest")
-    {
-
-    TestVct testVct1={2,1.2,{4.5,6.7,8.9},99};
-    auto listVariants5=serializeAMQP::toProton(testVct1);
-
-    auto var5= serializeAMQP::detail::fromPODAMQPImpl
-            <TestVct,serializeAMQP::TVctProtonScalar>(listVariants5);
-
-    REQUIRE(testVct1==var5);
-
-    }
 
     SECTION("Unit1_Misc")
     {
@@ -94,12 +82,6 @@ TEST_CASE( "AMQPSerialize ", "[AMQPSerialize]" )
     //std::cout << "TypeField: " << typeid(TypeField).name() << '\n';
     static_assert(std::is_same_v<TypeField,uint32_t>,"the same");
     REQUIRE(serializeAMQP::detail::isAMQPType<uint32_t>::value==1);
-    auto serABC=serializeAMQP::toProton(abc);
-
-
-
-    auto abc2=serializeAMQP::detail::fromPODAMQPImpl<ABC,serializeAMQP::TVctProtonScalar>(serABC);
-    REQUIRE(abc==abc2);
 
     }
 

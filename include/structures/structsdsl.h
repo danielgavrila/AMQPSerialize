@@ -12,36 +12,6 @@
 3. Add the structure in the VariantStruct (must be in bijection with the enum TypesAMQP )
 */
 
-// variable concept
-template <class T, class U>
-concept bool Derived = std::is_base_of_v<U, T>;
-
-// function concept
-template <class T>
-concept bool EqualityComparable() {
-    return requires(T a, T b) { {a == b} -> bool; {a != b} -> bool; };
-}
-
-template <class T>
-concept bool Integral = std::is_integral_v<T>;
-template <class T>
-concept bool SignedIntegral = Integral<T> && std::is_signed_v<T>;
-template <class T>
-concept bool UnsignedIntegral = Integral<T> && !SignedIntegral<T>;
-
-//template<typename T>
-//concept bool Addable = requires (T x) { x + x; }; // requires-expression
-
-template<typename T>
-concept bool Addable =
-        requires (T a, T b) {
-        a + b; // "the expression a+b is a valid expression that will compile"
-        };
-
-
-
-template<typename T> requires Addable<T> // requires-clause, not requires-expression
-T add(T a, T b) { return a + b; }
 
 namespace Queue1{
 
