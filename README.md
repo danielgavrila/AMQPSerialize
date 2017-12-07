@@ -2,9 +2,9 @@
 C++17 headers only library that serialize/deserialze a type T that must be constexpr aggregate initializable to AMQP  
 
 Dependency : 
-The excelent library magic_get from Antony Polukhin https://github.com/apolukhin/magic_get 
-Qpid Proton & Qpid Messaging libraries from Apache  https://qpid.apache.org/proton/
-catch2 test framework  https://github.com/catchorg/Catch2 (just to run the tests)
+  *The excelent library magic_get from Antony Polukhin https://github.com/apolukhin/magic_get 
+  *Qpid Proton & Qpid Messaging libraries from Apache  https://qpid.apache.org/proton/
+  *catch2 test framework  https://github.com/catchorg/Catch2 (just to run the tests)
 
 The compiler that I used is gcc version 7.2 with the flag -fconcepts
 
