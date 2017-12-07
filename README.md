@@ -8,11 +8,11 @@ The compiler that I used is gcc version 7.2 with the flag -fconcepts
 
 To build the tests you have to use cmake version 3.10
 
-cd build
-mkdir build
-cmake .. -DProton_DIR=/your-path-to-Proton/lib64/cmake/Proton 
-         -DProtonCpp_DIR=/your-path-to-ProtonCpp/lib64/cmake/ProtonCpp 
-         -DQpid_DIR=/your-path-to-Qpid/lib64/cmake/Qpid
+	cd build
+	mkdir build
+	cmake .. -DProton_DIR=/your-path-to-Proton/lib64/cmake/Proton 
+        	 -DProtonCpp_DIR=/your-path-to-ProtonCpp/lib64/cmake/ProtonCpp 
+	         -DQpid_DIR=/your-path-to-Qpid/lib64/cmake/Qpid
 
 Usage:You define under the same namespace all the POD structures that you want to serialize/deserialize.
 Let say that for the queue Queue1 you will want send/receive the structure Point
@@ -65,6 +65,33 @@ To test the new structure
     REQUIRE(p1==p3);
 
     }
+
+
+
+If your namespace contains also an enum class ,you have to add the enum type to the basic scalar types that are recognized by the Proton libraries
+
+
+	namespace Queue1
+	{
+		enum class StatusSensor:int32_t
+		{
+		    OK,
+		    NotAvailable,
+		    Busy
+		};
+	}
+
+	namespace serializeAMQP{
+	namespace detail{
+	    template<> struct isEnumAMQPType<Queue1::StatusSensor> : public std::true_type {};
+	    inline void getVariantImpl(const qpid::types::Variant &val,Queue1::StatusSensor &res)
+	    {
+		res= static_cast<Queue1::StatusSensor>(val.asInt32());
+	    }
+	}
+	}
+
+
 
 
 
