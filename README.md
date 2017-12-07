@@ -1,8 +1,8 @@
 # AMQPSerialize
-C++17 header only library that serialize/deserialze a type T that must be constexpr aggregate initializable to AMQP  
+C++17 headers only library that serialize/deserialze a type T that must be constexpr aggregate initializable to AMQP  
 
 Dependency : The library is using the excelent library magic_get from Antony Polukhin
-https://github.com/apolukhin/magic_get and the Qpid Proton and Qpid Messaging libraries from Apache
+https://github.com/apolukhin/magic_get and the Qpid Proton & Qpid Messaging libraries from Apache
 https://qpid.apache.org/proton/
 
 The compiler that I used is gcc version 7.2 with the flag -fconcepts
@@ -15,8 +15,8 @@ To build the tests you have to use cmake version 3.10
         	 -DProtonCpp_DIR=/your-path-to-ProtonCpp/lib64/cmake/ProtonCpp 
 	         -DQpid_DIR=/your-path-to-Qpid/lib64/cmake/Qpid
 
-Usage:You define under the same namespace all the POD structures that you want to serialize/deserialize.
-Let say that for the queue Queue1 you will want send/receive the structure Point
+Usage:In your project you have to include all headers files from include/AMQPSerialize.You define under the same namespace all the POD structures that you want to serialize/deserialize.
+Let says that for the queue Queue1 you will want to send/receive the structure Point
 
 	namespace Queue1
 	{
