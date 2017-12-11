@@ -15,7 +15,7 @@ install(FILES ${LibFiles}
 
 # 'make install' to the correct locations (provided by GNUInstallDirs).
 install(TARGETS library_iface EXPORT AMQPSerLibConfig)
-#install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
 
 # This makes the project importable from the install directory
 # Put config file in per-project dir (name MUST match), can also

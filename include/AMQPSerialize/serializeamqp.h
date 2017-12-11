@@ -477,23 +477,19 @@ TVctAMQP eraseLastValue(const TVctAMQP & valVect)
     return val;
 }
 
-template<typename TVctAMQP, typename ...T >
-struct initFunctionsTuple
+template <typename TVctAMQP> requires QpidVector<TVctAMQP>
+size_t getIndexInTuple(const TVctAMQP &valVect )
 {
-    static decltype(auto) doIt()
-    {
-        return std::make_tuple(serializeAMQP::detail::fromPODAMQPImpl<T,TVctAMQP>...);
-    }
-};
+    auto idTypeStruct=TypesAMQP::NotValid;
 
+    auto lastValue=valVect.back();
+    if constexpr (isQpidImplementation<TVctAMQP>)
+        idTypeStruct=static_cast<TypesAMQP>(getVariant<int32_t>(lastValue));
+    else
+        idTypeStruct=static_cast<TypesAMQP>(proton::get<int32_t>(lastValue));
 
-//T is a tuple of  POD
-template<typename T,typename TVctAMQP> requires QpidVector<TVctAMQP>
-using init_FN_tuple = decltype(
-            moveParamPacks<TVctAMQP,initFunctionsTuple,std::tuple>
-            (std::declval<T>()));
-
-
+    return static_cast<size_t>(idTypeStruct)-1;//TypesAMQP contains also the 0 state
+}
 
 }//end detail
 
@@ -513,48 +509,45 @@ TListQpidVariant toQpid(const T &val)
 }
 
 
-
 //TVctAMQP requires to be a vector of proton::scalar,qpid::types::Variant
 template <typename Result,typename TVctAMQP>
-        requires QpidVector<TVctAMQP>  && detail::is_variant_v<Result>
+requires QpidVector<TVctAMQP>  && detail::is_variant_v<Result>
 Result fromAMQPImpl(const TVctAMQP &valVect )
 {
     auto res=Result();
+    using AMQPTuple=to_tuple_from_variant_with_zero<Result>;
+    //initialize tuple of function  objects for serializeAMQP::detail::fromPODAMQPImpl
+    auto tupleOfFuncObjs=map_tuple_elements_apply(
+                AMQPTuple{},
+                []( auto &&elem)//forwarding reference, bind also to a r-value
+    {
+        using elemType=std::remove_reference_t<decltype(elem)>;
+        //late binding for the parameter of function: fromPODAMQPImpl
+        return std::bind(serializeAMQP::detail::fromPODAMQPImpl
+                         <elemType,TVctAMQP>,std::placeholders::_1);
+    }
+    );
 
-    using AMQPTuple=
-    to_tuple_from_variant_with_zero<Result>;
 
-    //initialize tuple of functions serializeAMQP::detail::fromPODAMQPImpl
-    auto tupleOfFunctions=detail::init_FN_tuple<AMQPTuple,TVctAMQP >::doIt();
-
-
-
-    auto idTypeStruct=TypesAMQP::NotValid;
-
-    auto lastValue=valVect.back();
-    if constexpr (detail::isQpidImplementation<TVctAMQP>)
-            idTypeStruct=static_cast<TypesAMQP>(detail::getVariant<int32_t>(lastValue));
-    else
-    idTypeStruct=static_cast<TypesAMQP>(proton::get<int32_t>(lastValue));
-
+    auto indexInTuple=detail::getIndexInTuple(valVect);
+    assert(indexInTuple<std::tuple_size_v<decltype(tupleOfFuncObjs)>);
 
     auto  val=detail::eraseLastValue(valVect);
-
-    auto k=static_cast<size_t>(idTypeStruct)-1;//TypesAMQP contains also the 0 state
-
-    assert(k<std::tuple_size_v<decltype(tupleOfFunctions)>);
-    applyIndex(tupleOfFunctions, k, [val=val,&res](auto p)
+    applyIndex(tupleOfFuncObjs, indexInTuple, [val=val,&res](auto &funcObj)
     {
-        res=p(val);
+        //funcObj is a serializeAMQP::detail::fromPODAMQPImpl
+        res=funcObj(val);
     });
 
 
+    //check if you find a proper struct
+    assert(res.index() !=0);
     return res;
 
 }
 
 template <typename Result>
-        requires  detail::is_variant_v<Result>
+requires  detail::is_variant_v<Result>
 Result fromAMQPImpl(const proton::message &m )
 {
 

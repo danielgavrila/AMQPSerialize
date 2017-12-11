@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 project(AMQPSerialize)
 
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
-#needed packages from Proton, where build with CMake
+#needed packages from Proton,which were build with CMake
 find_package(Proton CONFIG REQUIRED)
 find_package(ProtonCpp CONFIG REQUIRED)
 find_package(Qpid CONFIG REQUIRED)
