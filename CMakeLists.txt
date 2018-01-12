@@ -27,11 +27,12 @@ set (ALL_LIBS
     )
 
 include(./cmake/util.cmake)
-add_subdirectory(./include/AMQPSerialize)
-add_subdirectory(./tests/test1)
-add_subdirectory(./tests/test2)
-
-
+#add_subdirectory(./include/AMQPSerialize)
+#add_subdirectory(./tests/test1)
+#add_subdirectory(./tests/test2)
+add_subdirectory(./tests/recv)
+add_subdirectory(./tests/sender)
+add_subdirectory(./boost-cmake)
 
 
 

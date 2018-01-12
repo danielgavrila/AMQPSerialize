@@ -47,6 +47,10 @@ bool operator==(const ABC&a,const ABC &b)
 TEST_CASE( "AMQPSerialize ", "[AMQPSerialize]" )
 {
 
+
+
+
+
     SECTION( "Misc1" )
     {
     qpid::types::Variant valc('f');
@@ -68,7 +72,7 @@ TEST_CASE( "AMQPSerialize ", "[AMQPSerialize]" )
     REQUIRE(ul==12);
 
 
-    auto ts=TestStruct{2,3.14,'c',{4.3,45,"hello","world"}};
+    auto ts=TestStruct{2,3.14,'c',{4.3,45,"hello","world"},{7,8}};
 
     AMQPTestStruct v{ts};
 
@@ -103,6 +107,7 @@ TEST_CASE( "AMQPSerialize ", "[AMQPSerialize]" )
 
     auto p3=std::get<Queue1::Point>(var2);
     REQUIRE(p1==p3);
+
     }
 
     SECTION("ProfileTest")

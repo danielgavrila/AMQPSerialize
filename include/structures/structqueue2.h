@@ -41,14 +41,21 @@ inline bool operator==(const Parameters &p1,const Parameters &p2)
     return p1.id==p2.id && p1.type==p2.type;
 }
 
+struct CAPPI
+{
+   Parameters params;
+   proton::binary blob;
+};
 
 using AMQPWind=AMQPStructs<Wind,TypesAMQP::One>;
 using AMQPParameters=AMQPStructs<Parameters,TypesAMQP::Two>;
+using AMQPCAPPI=AMQPStructs<CAPPI,TypesAMQP::Three>;
 
 using VariantStruct=std::variant<
                 std::monostate,
                 Wind,
-                Parameters>;
+                Parameters,
+                AMQPCAPPI>;
 
 template <typename TVctAMQP>
 VariantStruct fromAMQP(const TVctAMQP &valVect )

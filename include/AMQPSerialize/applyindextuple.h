@@ -4,6 +4,7 @@
 #include<tuple>
 #include<variant>
 #include<vector>
+#include<array>
 #include<utility>
 #include<type_traits>
 #include<functional>
@@ -54,7 +55,8 @@ void applyIndex(Tuple&& p, int index, Functor &&func, std::index_sequence< Is...
     //}
     //... };
 
-    FT arr[] = { apply_one<Is,Tuple,Functor>... };
+    constexpr std::size_t N = std::tuple_size_v<std::remove_reference_t<Tuple>>;
+    std::array<FT,N> arr = { apply_one<Is,Tuple,Functor>... };
 
     arr[index](std::forward<Tuple>(p), std::forward<Functor>(func));
 }
@@ -90,4 +92,19 @@ constexpr auto map_tuple_elements_apply(T&& tup, F &&f) {
            }, std::forward<T>(tup));
 }
 
+
+template <typename Tuple, typename F, std::size_t ...Indices>
+void for_each_impl(Tuple&& tuple, F&& f, std::index_sequence<Indices...>) {
+    using swallow = int[];
+    (void)swallow{1,
+        (f(std::get<Indices>(std::forward<Tuple>(tuple))), void(), int{})...
+    };
+}
+
+template <typename Tuple, typename F>
+void for_each(Tuple&& tuple, F&& f) {
+    constexpr std::size_t N = std::tuple_size<std::remove_reference_t<Tuple>>::value;
+    for_each_impl(std::forward<Tuple>(tuple), std::forward<F>(f),
+                  std::make_index_sequence<N>{});
+}
 #endif // APPLYINDEXTUPLE_H

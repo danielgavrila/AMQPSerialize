@@ -20,6 +20,8 @@
 
 
 #include <proton/message.hpp>
+#include <proton/target.hpp>
+#include <proton/source.hpp>
 #include <proton/codec/encoder.hpp>
 #include <proton/codec/decoder.hpp>
 #include <proton/codec/list.hpp>
@@ -92,15 +94,14 @@ template<> struct isAMQPType<wchar_t> : public std::true_type {};
 template<> struct isAMQPType<float> : public std::true_type{};
 template<> struct isAMQPType<double> : public std::true_type {};
 template<> struct isAMQPType<std::string> : public std::true_type {};
+template<> struct isAMQPType<proton::binary> : public std::true_type{};
 
-
-//template<> struct isAMQPType<symbol> : public std::true_type<SYMBOL, symbol> {};
-//template<> struct isAMQPType<binary> : public std::true_type<BINARY, binary> {};
-//template<> struct isAMQPType<timestamp> : public std::true_type<TIMESTAMP, timestamp> {};
-//template<> struct isAMQPType<decimal32> : public std::true_type<DECIMAL32, decimal32> {};
-//template<> struct isAMQPType<decimal64> : public std::true_type<DECIMAL64, decimal64> {};
-//template<> struct isAMQPType<decimal128> : public std::true_type<DECIMAL128, decimal128> {};
-//template<> struct isAMQPType<uuid> : public std::true_type<UUID, uuid> {};
+//template<> struct isAMQPType<proton::symbol> : public std::true_type {};
+//template<> struct isAMQPType<proton::timestamp> : public std::true_type< {};
+//template<> struct isAMQPType<proton::decimal32> : public std::true_type {};
+//template<> struct isAMQPType<proton::decimal64> : public std::true_type{};
+//template<> struct isAMQPType<proton::decimal128> : public std::true_type {};
+//template<> struct isAMQPType<proton::uuid> : public std::true_type {};
 template<typename T>
 concept bool isAMQPType_v=isAMQPType<T>::value;
 
@@ -478,7 +479,7 @@ TVctAMQP eraseLastValue(const TVctAMQP & valVect)
 }
 
 template <typename TVctAMQP> requires QpidVector<TVctAMQP>
-size_t getIndexInTuple(const TVctAMQP &valVect )
+constexpr size_t getIndexInTuple(const TVctAMQP &valVect )
 {
     auto idTypeStruct=TypesAMQP::NotValid;
 
@@ -499,6 +500,14 @@ template <typename T >  requires detail::isAMQPStruct<T>
 TVctProtonScalar toProton(const T &val)
 {
     return detail::toAMQPImpl<T,TVctProtonScalar>(val);
+}
+
+template <typename T >  requires detail::isAMQPStruct<T>
+proton::message toProtonMessage(const T &val)
+{
+    proton::message m;
+    m.body(detail::toAMQPImpl<T,TVctProtonScalar>(val));
+    return m;
 }
 
 

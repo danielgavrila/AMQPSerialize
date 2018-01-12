@@ -22,17 +22,23 @@ struct foo{
     std::string str;
     std::string str1;
 };
+inline bool operator==(const foo& a,const foo&b)
+{
+    return a.z==b.z && a.s==b.s && a.str==b.str && a.str1==b.str1;
+}
+
 
 struct TestStruct{
     int32_t i;
     double d;
     int8_t c;
     foo f;
+    std::vector<int>  vec;
 
 };
 inline bool operator==(const TestStruct& a,const TestStruct&b)
 {
-    return a.i==b.i ;
+    return a.i==b.i && a.f==b.f && a.vec==b.vec;
 }
 
 using VctTestStruct=std::vector<TestStruct>;
