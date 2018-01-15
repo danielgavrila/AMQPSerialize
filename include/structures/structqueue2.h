@@ -2,7 +2,7 @@
 #define STRUCTQUEUE2_H
 
 #include "AMQPSerialize/serializeamqp.h"
-
+#include "descprod.h"
 /*
 1. Define the structure MyStruct
 2. Define the structute to be sent to AMQP , AMQPMyStruct derived from AMQPStructs
@@ -13,6 +13,7 @@
 
 namespace Queue2
 {
+using namespace serializeAMQP;
 struct Wind{
     double speed;
     double dir;
@@ -43,7 +44,7 @@ inline bool operator==(const Parameters &p1,const Parameters &p2)
 
 struct CAPPI
 {
-   Parameters params;
+   DescriptionProduct params;
    proton::binary blob;
 };
 

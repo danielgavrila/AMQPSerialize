@@ -14,7 +14,7 @@
 
 
 namespace Queue1{
-
+using namespace serializeAMQP;
 constexpr int SIZE_STR=10;
 struct foo{
     double z;

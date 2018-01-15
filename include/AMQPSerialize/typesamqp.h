@@ -5,7 +5,7 @@
 #include<vector>
 #include<utility>
 #include<type_traits>
-
+namespace serializeAMQP{
 enum class TypesAMQP:int32_t
 {
     NotValid=0,
@@ -39,7 +39,7 @@ template <typename T,TypesAMQP ID> struct AMQPStructs
     TypesAMQP tAMQP{ID};//the  last value is the typeId
 };
 
-
+}
 
 
 #endif // TYPESAMQP_H
