@@ -1,11 +1,11 @@
 project(sender)
 
-set(SOURCES unitCatch) #unitCatch.cpp service_bus
+set(SOURCES unitCatch ) #unitCatch.cpp service_bus server server
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 compileArgs (${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} ${ALL_LIBS}  Boost::boost Boost::system)
+target_link_libraries(${PROJECT_NAME} ${ALL_LIBS})
 
 
 #message("CXX_STANDARD: ${CXX_STANDARD}")

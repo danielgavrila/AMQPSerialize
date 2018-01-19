@@ -151,6 +151,13 @@ inline void send_thread( sender& s, const proton::message &m)
 {
         s.send(m);
 }
+
+inline void send_thread( sender& s, const std::vector<proton::message> &vct)
+{
+    for(auto &m:vct)
+        s.send(m);
+}
+
 }
 #endif
 

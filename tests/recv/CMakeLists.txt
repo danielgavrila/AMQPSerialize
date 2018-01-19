@@ -1,11 +1,11 @@
 project(recv)
 
-set(SOURCES recv) #unitCatch.cpp service_bus selected_recv recv filter_subject
+set(SOURCES recv) #unitCatch.cpp service_bus selected_recv recv filter_subject client
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 compileArgs (${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} ${ALL_LIBS}  Boost::boost Boost::system)
+target_link_libraries(${PROJECT_NAME} ${ALL_LIBS}  )
 
 
 #message("CXX_STANDARD: ${CXX_STANDARD}")

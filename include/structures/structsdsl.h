@@ -2,7 +2,6 @@
 #define STRUCTSDSL_H
 
 
-
 #include "AMQPSerialize/serializeamqp.h"
 
 /*

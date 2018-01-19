@@ -52,6 +52,7 @@
 #include <proton/sender.hpp>
 #include <proton/work_queue.hpp>
 #include <proton/source_options.hpp>
+#include <proton/reconnect_options.hpp>
 
 #include <atomic>
 #include <condition_variable>
@@ -65,7 +66,7 @@
 
 
 namespace serializeAMQP{
-using  ContinuationReceive=std::function<void(const proton::message &m)>;
+using  ContinuationReceive=std::function<int(const proton::message &m)>;
 
 inline void set_filter(proton::source_options &opts, const std::string& selector_str) {
     proton::source::filter_map map;
@@ -101,17 +102,18 @@ class receiver : private proton::messaging_handler {
     std::condition_variable can_receive_; // Notify receivers of messages
     receiverConfig receiverConfig_;
     ContinuationReceive continuationReceive_;
-    bool bDone_;
+
   public:
 
     // Connect to url
     receiver(proton::container& cont,  receiverConfig &recConfig,const ContinuationReceive &continuationReceive)
-        : work_queue_(),receiverConfig_(recConfig),continuationReceive_(continuationReceive),bDone_(false)
+        : work_queue_(),receiverConfig_(recConfig),continuationReceive_(continuationReceive)
     {
         // NOTE:credit_window(0) disables automatic flow control.
         // We will use flow control to match AMQP credit to buffer capacity.
+        proton::reconnect_options rec_opts;
         cont.open_receiver(recConfig.getAddrUrl(), proton::receiver_options().source(recConfig.opts).credit_window(0),
-                           proton::connection_options().handler(*this));
+                           proton::connection_options().handler(*this).reconnect(rec_opts));
     }
 
     // Thread safe receive
@@ -133,15 +135,6 @@ class receiver : private proton::messaging_handler {
         if (work_queue_) work_queue_->add([this]() { this->receiver_.connection().close(); });
     }
 
-    bool bDone() const
-    {
-    return bDone_;
-    }
-
-    void setDone(bool bDone)
-    {
-    bDone_ = bDone;
-    }
 
 
 
@@ -187,17 +180,23 @@ private:
 // remaining is shared among all receiving threads
 inline void receive_thread_forever(receiver& r)
 {
-    std::cout << "start thread"<< std::endl;
-    while(!r.bDone())
+    std::cout << "start thread receive_thread_forever"<< std::endl;
+    while(true)
     {
         auto m = r.receive();    
-        r.continuationReceive()(m);
+        auto bExit=r.continuationReceive()(m);
+        if(bExit)
+        {
+
+            break;
+        }
     }
+    std::cout << "end thread receive_thread_forever"<< std::endl;
 }
 
 inline void receive_thread_once(receiver& r)
 {
-    std::cout << "start thread"<< std::endl;
+    std::cout << "start thread receive_thread_once"<< std::endl;
     auto m = r.receive();
     r.continuationReceive()(m);
 }

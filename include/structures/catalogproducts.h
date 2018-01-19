@@ -46,7 +46,7 @@ VariantStruct  fromAMQP(const proton::message &m )
 {
     return  serializeAMQP::fromAMQPImpl<VariantStruct>(m );
 }
-
+using VctAMQPCatalogProducts=std::vector<AMQPCatalogProducts>;
 
 }
 
